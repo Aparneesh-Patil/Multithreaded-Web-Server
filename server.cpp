@@ -46,55 +46,55 @@ int main(){
 
     cout << "Server running. Waiting for client...\n";
 
-    while(true){
-        // accept a client
-        SOCKET acceptsocket;
-        acceptsocket = accept(sock, nullptr, nullptr);
+    // accept a client
+    SOCKET acceptsocket;
+    acceptsocket = accept(sock, nullptr, nullptr);
 
-        if(acceptsocket == INVALID_SOCKET){
-            cout << "Accept function failed";
-            WSACleanup();
-            return 1;
-        }
-        else{
-            cout << "Client connected" << endl;
-        }
-
-        DWORD timeout = 3000;
-        setsockopt(acceptsocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
-        
-        // read request
-        char recvbuffer[BUFFER_LEN] = {0};
-
-        iResult = recv(acceptsocket, recvbuffer, BUFFER_LEN, 0);
-        cout << "Received: " << recvbuffer << endl;
-
-
-        // send HTTP response
-        const char*  response =  "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "<!DOCTYPE html>"
-        "<html>"
-        "<head><title>My Server</title></head>"
-        "<body style='background:white; color:black;'>"
-        "<h1>Hello from my server</h1>"
-        "<p>You connected successfully.</p>"
-        "</body>"
-        "</html>";
-
-        send(acceptsocket, response, strlen(response), 0);
-
-        if(closesocket(acceptsocket) == SOCKET_ERROR){
-            cout << "Closing sockets failed";
-            WSACleanup();
-            return 1;
-        }
+    if(acceptsocket == INVALID_SOCKET){
+        cout << "Accept function failed";
+        WSACleanup();
+        return 1;
     }
+    else{
+        cout << "Client connected" << endl;
+    }
+    
+    // read request
+    char recvbuffer[BUFFER_LEN] = {0};
+
+    iResult = recv(acceptsocket, recvbuffer, BUFFER_LEN, 0);
+    cout << "Received: " << recvbuffer << endl;
+
+
+    // send HTTP response
+    const char* body = 
+    "<!DOCTYPE html>"
+    "<html>"
+    "<head><title>My Server</title></head>"
+    "<body style='background:white; color:black;'>"
+    "<h1>Hello from my server</h1>"
+    "<p>You connected successfully.</p>"
+    "</body>"
+    "</html>";
+
+
+    string response =  
+        string("HTTP/1.1 200 OK\r\n") +
+        "Content-Type: text/html\r\n" +
+        "Content-Length: " + to_string(strlen(body)) + "\r\n" +
+        "Connection: close\r\n" +
+        "\r\n" + string(body);
+
+    send(acceptsocket, response.c_str(), response.size(), 0);
     
 
     // close sockets
+    if(closesocket(acceptsocket) == SOCKET_ERROR){
+        cout << "Closing sockets failed";
+        WSACleanup();
+        return 1;
+    }
+
     if(closesocket(sock) == SOCKET_ERROR){
         cout << "Closing sockets failed";
         WSACleanup();
