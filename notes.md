@@ -90,7 +90,7 @@ We close listening/client sockets at the end of the file, using the following fu
 
 
 ## Tasks:
-    [ ] Learn Winsock basics/TCP setup
+    [X] Learn Winsock basics/TCP setup
     [ ] Create a TCP server
     [ ] HTTP response
     [ ] HTTP Request Parsing
