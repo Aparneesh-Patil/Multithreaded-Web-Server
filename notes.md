@@ -10,8 +10,6 @@
     - close connection
 
 
-
-
 ## Initialize Winsock
 First, initialize Winsock to use Window's socket API and to turn it on use WSAStartup():
 
@@ -72,9 +70,15 @@ where:
 
 
 ## Reading Requests
+The read function reads data from the client sent through the socket. The way this works is:
+
+<p style="text-align: center;"> recv(SOCKET s, char* buf, int len, int flags) </p>
+
 
 ## Sending Responses
-If your client is another socket program, then it is fine to send raw text but if it is a browser or curl, it expects a HTML response 
+The send function sends a HTTP response back to client. If your client is another socket program, then it is fine to send raw text but if it is a browser or curl, it expects a HTML response. To do so:
+
+<p style="text-align: center;"> send(SOCKET s, char* buf, int len, int flags) </p>
 
 
 ## Closing sockets
