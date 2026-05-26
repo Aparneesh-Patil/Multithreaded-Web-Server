@@ -3,9 +3,26 @@
 #include <ws2tcpip.h>
 #include <string>
 #include <cstring>
+#include <sstream>
+#include <vector>
 
 #define BUFFER_LEN 512
 using namespace std;
+
+class Parser{
+    public:
+        vector<string> parse(char recvbuffer[]){
+            string request;
+            stringstream ss{string(recvbuffer)};
+            vector<string> result;
+
+            while(getline(ss, request, ' ')){
+                result.push_back(request);
+            }
+
+            return result;
+        };
+};
 
 int main(){
     // initialize winsock
@@ -48,59 +65,85 @@ int main(){
 
     // accept a client
     SOCKET acceptsocket;
-    acceptsocket = accept(sock, nullptr, nullptr);
 
-    if(acceptsocket == INVALID_SOCKET){
-        cout << "Accept function failed";
-        WSACleanup();
-        return 1;
-    }
-    else{
-        cout << "Client connected" << endl;
+    while(true){
+        acceptsocket = accept(sock, nullptr, nullptr);
+
+        if(acceptsocket == INVALID_SOCKET){
+            cout << "Accept function failed";
+            WSACleanup();
+            return 1;
+        }
+        else{
+            cout << "Client connected" << endl;
+        }
+
+        // read request
+        char recvbuffer[BUFFER_LEN] = {0};
+
+        iResult = recv(acceptsocket, recvbuffer, BUFFER_LEN, 0);
+        cout << "Received: \n" << recvbuffer << endl;
+
+        // parse the request:
+        vector<string> res; 
+        Parser p;
+        res = p.parse(recvbuffer);
+
+        const char* body;
+        string response; 
+        if(res[1] == "/"){
+            body = 
+                "<!DOCTYPE html>"
+                "<html>"
+                "<head><title>My Server</title></head>"
+                "<body style='background:white; color:black;'>"
+                "<h1>Hello from my server</h1>"
+                "<p>You connected successfully.</p>"
+                "</body>"
+                "</html>";
+
+            response =  
+                string("HTTP/1.1 200 OK\r\n") +
+                "Content-Type: text/html\r\n" +
+                "Content-Length: " + to_string(strlen(body)) + "\r\n" +
+                "Connection: close\r\n" +
+                "\r\n" + string(body);
+        }
+        else{
+            body = 
+                "<!DOCTYPE html>"
+                "<html>"
+                "<head><title>My Server</title></head>"
+                "<body style='background:white; color:black;'>"
+                "<h1>404 Not Found</h1>"
+                "</body>"
+                "</html>";
+            response =
+                string("HTTP/1.1 404 Not Found\r\n") +
+                "Content-Type: text/html\r\n" +
+                "Content-Length: " + to_string(strlen(body)) + "\r\n" +
+                "Connection: close\r\n" +
+                "\r\n" + string(body);
+        }
+
+        
+        send(acceptsocket, response.c_str(), response.size(), 0);
+        
+
+        // close client socket
+        if(closesocket(acceptsocket) == SOCKET_ERROR){
+            cout << "Closing sockets failed";
+            WSACleanup();
+            return 1;
+        }
     }
     
-    // read request
-    char recvbuffer[BUFFER_LEN] = {0};
-
-    iResult = recv(acceptsocket, recvbuffer, BUFFER_LEN, 0);
-    cout << "Received: " << recvbuffer << endl;
-
-
-    // send HTTP response
-    const char* body = 
-    "<!DOCTYPE html>"
-    "<html>"
-    "<head><title>My Server</title></head>"
-    "<body style='background:white; color:black;'>"
-    "<h1>Hello from my server</h1>"
-    "<p>You connected successfully.</p>"
-    "</body>"
-    "</html>";
-
-
-    string response =  
-        string("HTTP/1.1 200 OK\r\n") +
-        "Content-Type: text/html\r\n" +
-        "Content-Length: " + to_string(strlen(body)) + "\r\n" +
-        "Connection: close\r\n" +
-        "\r\n" + string(body);
-
-    send(acceptsocket, response.c_str(), response.size(), 0);
-    
-
-    // close sockets
-    if(closesocket(acceptsocket) == SOCKET_ERROR){
-        cout << "Closing sockets failed";
-        WSACleanup();
-        return 1;
-    }
-
+    // close listening socket
     if(closesocket(sock) == SOCKET_ERROR){
         cout << "Closing sockets failed";
         WSACleanup();
         return 1;
     }
-
 
     WSACleanup();
     return 0;

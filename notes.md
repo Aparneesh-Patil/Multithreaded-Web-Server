@@ -95,10 +95,10 @@ We close listening/client sockets at the end of the file, using the following fu
 
 ## Tasks:
     [X] Learn Winsock basics/TCP setup
-    [ ] Create a TCP server
-    [ ] HTTP response
-    [ ] HTTP Request Parsing
-    [ ] Basic Routing
+    [X] Create a TCP server
+    [X] HTTP response
+    [X] HTTP Request Parsing
+    [X] Basic Routing
     [ ] Static File Serving
     [ ] MIME Type Detection
     [ ] Custom Thread Pool
