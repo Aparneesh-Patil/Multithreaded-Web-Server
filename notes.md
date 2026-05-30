@@ -99,7 +99,8 @@ We close listening/client sockets at the end of the file, using the following fu
     [X] HTTP response
     [X] HTTP Request Parsing
     [X] Basic Routing
-    [ ] Static File Serving
-    [ ] MIME Type Detection
+    [X] Static File Serving
+    [X] MIME Type Detection
+    [X] Basic Error Handling
     [ ] Custom Thread Pool
-    [ ] Error Handling
+    

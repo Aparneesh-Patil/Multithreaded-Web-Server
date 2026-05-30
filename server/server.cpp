@@ -85,10 +85,11 @@ SOCKET Server::acceptClient(){
 };
 
 void Server::handleClient(SOCKET clientSocket){
+
+    // read the request
     char recvbuffer[BUFFER_LEN] = {0};
 
     int iResult = recv(clientSocket, recvbuffer, BUFFER_LEN, 0);
-
 
     if (iResult <= 0) {
         cout << "Client disconnected or recv failed\n";
@@ -97,46 +98,22 @@ void Server::handleClient(SOCKET clientSocket){
 
     recvbuffer[iResult] = '\0';
 
-    cout << "Received: \n" << recvbuffer << endl;
-
     // parse the request:
     Parser p;
     Request req = p.parse(recvbuffer);
 
     // Build the response
+    Router rt;
     ResponseBuilder rb;
-    Response res;
+    Response routed = rt.route(req);
 
-    if(req.path == "/"){
-        res.body = 
-            "<!DOCTYPE html>"
-            "<html>"
-            "<head><title>My Server</title></head>"
-            "<body style='background:white; color:black;'>"
-            "<h1>Hello from my server</h1>"
-            "<p>You connected successfully.</p>"
-            "</body>"
-            "</html>";
-            
-        res.contentType = "text/html";
-        res.status = "200 OK";
-    }
-    else{
-        res.body = 
-            "<!DOCTYPE html>"
-            "<html>"
-            "<head><title>My Server</title></head>"
-            "<body style='background:white; color:black;'>"
-            "<h1>404 Not Found</h1>"
-            "</body>"
-            "</html>";
+    cout << "Received: " << req.method << " " << req.path << " " << req.version << " -> " << routed.status << endl;
 
-        res.contentType = "text/html";
-        res.status = "404 Not Found";
-    }
+    string response = rb.build(routed);
+
+    
     
     //send the response to client
-    string response = rb.build(res);
     send(clientSocket, response.c_str(), response.size(), 0);
 };
 
