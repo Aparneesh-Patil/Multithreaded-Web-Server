@@ -1,4 +1,4 @@
-# Server using Winsock
+# Winsock
 
 ### Every server has the following functions:
     - create sockets
@@ -87,8 +87,7 @@ We close listening/client sockets at the end of the file, using the following fu
 <p style="text-align: center;"> closesocket(SOCKET s) </p>
 
 
-
-
+# Thread pools
 
 
 
