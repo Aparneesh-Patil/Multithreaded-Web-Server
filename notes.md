@@ -89,6 +89,14 @@ We close listening/client sockets at the end of the file, using the following fu
 
 # Thread pools
 
+## General Information
+Threading allows for multiple clients at the same time instead of one at a time. A simple approach using threads would be to create a new thread for every client but that is not idea since thread creation is expensive, too many threads = server crash, there is no limit to how much the server accepts. This is where thread pool is useful. We have one main thread that accepts client connection and worker thread that perform receiving, responding to client.
+
+## Implementation
+Main threads accepts client connection -> socket goes into task queue -> worker thread takes socket -> worker receives request -> send response to client -> close socket -> wait for next client. Use the threads library and mutex for locks. 
+
+## How this actually works
+First, we start the server and wait for clients to connect. When a client connects, the server accepts the client socket and adds it to the ThreadPool’s queue. The ThreadPool has worker threads waiting for jobs. When a socket is added to the queue, we notify one worker that a client is ready to be handled. We put a lock on the queue because multiple threads may push or pop from it, and we do not want two threads modifying the queue at the same time. The lock is only held for a very short time while a socket is added or removed, so after each worker gets a client socket, the workers can handle their clients at the same time.
 
 
 
