@@ -22,6 +22,7 @@ bool Server::start(){
 
 void Server::run(){
     SOCKET client;
+    ThreadPool tp(4);
 
     while(true){
         client = acceptClient();
@@ -31,8 +32,8 @@ void Server::run(){
             continue;
         }
 
-        handleClient(client);
-        closesocket(client);
+        // adds client to the thread pool (queue of client sockets based on first come first serve)
+        tp.add(client);
     }
 };
 
@@ -85,7 +86,6 @@ SOCKET Server::acceptClient(){
 };
 
 void Server::handleClient(SOCKET clientSocket){
-
     // read the request
     char recvbuffer[BUFFER_LEN] = {0};
 
@@ -109,11 +109,8 @@ void Server::handleClient(SOCKET clientSocket){
 
     cout << "Received: " << req.method << " " << req.path << " " << req.version << " -> " << routed.status << endl;
 
-    string response = rb.build(routed);
-
-    
-    
     //send the response to client
+    string response = rb.build(routed);
     send(clientSocket, response.c_str(), response.size(), 0);
 };
 

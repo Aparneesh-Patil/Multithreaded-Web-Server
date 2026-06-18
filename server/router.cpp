@@ -32,6 +32,15 @@ Response Router::route(Request req){
     string filePath;
 
     // if / then index, if it's just /name, then name.html, else if it's /_.html/css/js then _.html/_.css/_.js, etc
+
+    // testing mulithreadedness
+    if (req.path == "/slow") {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        res.status = "200 OK";
+        res.contentType = "text/plain";
+        res.body = "Slow response done";
+        return res;
+    }
     if (req.path == "/") {
         filePath = "public/index.html";
     }
