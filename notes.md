@@ -109,5 +109,5 @@ First, we start the server and wait for clients to connect. When a client connec
     [X] Static File Serving
     [X] MIME Type Detection
     [X] Basic Error Handling
-    [ ] Custom Thread Pool
+    [X] Custom Thread Pool
     
